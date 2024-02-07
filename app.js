@@ -247,7 +247,8 @@ const server = app.listen(port, () => {
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
-    origin: ["http://localhost:5173", "http://localhost:5174"]
+    origin: ["https://65c33d0f9b913753916587ec--poetic-paprenjak-33f3f2.netlify.app",
+      "https://65c33d8cb7a365553aba5504--rococo-hotteok-754d67.netlify.app"]
   }
 })
 
