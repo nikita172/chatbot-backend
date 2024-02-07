@@ -18,7 +18,7 @@ app.use(cors());
 app.use("/public", express.static(path.join(__dirname, "./public")))
 console.log(__dirname)
 db.connect();
-const port = process.env.PORT || 5000;
+const port = process.env.PORT;
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
