@@ -249,7 +249,7 @@ const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
     origin: ["https://cheery-smakager-182a9e.netlify.app",
-      "https://65c34a0d028ba65dcac167d4--grand-sopapillas-4a52f2.netlify.app"]
+      "https://grand-sopapillas-4a52f2.netlify.app/chats"]
     // origin: ["http://localhost:5173", "http://localhost:5174"
     // ]
   }
