@@ -35,7 +35,7 @@ app.get("/", (req, res) => {
 })
 
 app.post("/admin/register", async (req, res) => {
-  console.log("register called")
+  console.log("register api called")
   try {
     const { username, password } = req.body;
     if (!username) throw new Error("Username cannot be empty");
@@ -60,6 +60,7 @@ app.post("/admin/register", async (req, res) => {
 })
 
 app.post("/admin/login", async (req, res) => {
+  console.log("login api runs")
   try {
     const { username, password } = req.body;
     if (!username) throw new Error("Username cannot be empty");
@@ -247,8 +248,10 @@ const server = app.listen(port, () => {
 const io = require("socket.io")(server, {
   pingTimeout: 60000,
   cors: {
-    origin: ["https://merry-kheer-1a2f1a.netlify.app",
+    origin: ["https://cheery-smakager-182a9e.netlify.app",
       "https://65c34a0d028ba65dcac167d4--grand-sopapillas-4a52f2.netlify.app"]
+    // origin: ["http://localhost:5173", "http://localhost:5174"
+    // ]
   }
 })
 
