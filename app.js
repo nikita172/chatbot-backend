@@ -6,7 +6,6 @@ const db = require("./database/connection");
 const Admin = require("./models/Admin");
 const Chat = require("./models/chatModel");
 const Message = require("./models/messageModel");
-const multer = require("multer");
 const Product = require("./models/Product");
 console.log(db);
 const app = express();
@@ -20,16 +19,6 @@ console.log(__dirname)
 db.connect();
 const port = process.env.PORT;
 
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => {
-    cb(null, "public/images")
-  },
-  filename: (req, file, cb) => {
-    cb(null, Date.now() + Math.random() + file.originalname)
-  }
-})
-
-const upload = multer({ storage })
 app.get("/", (req, res) => {
   res.send("hello")
 })
@@ -84,15 +73,15 @@ app.post("/admin/login", async (req, res) => {
   }
 })
 
-app.post("/products/add", upload.any(), async (req, res) => {
-  const { productType, brandName, aboutProductShort, mrp } = req.body;
+app.post("/products/add", async (req, res) => {
+  const { productType, brandName, aboutProductShort, mrp, img } = req.body;
   try {
     const user = new Product({
       productType,
       brandName,
       aboutProductShort,
       mrp,
-      img: req.files.map((f) => f.filename)
+      img: img
     })
     const data = await user.save();
     const response = {
