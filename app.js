@@ -239,8 +239,7 @@ const io = require("socket.io")(server, {
   cors: {
     origin: ["https://cheery-smakager-182a9e.netlify.app",
       "https://grand-sopapillas-4a52f2.netlify.app"]
-    // origin: ["http://localhost:5173", "http://localhost:5174"
-    // ]
+    // origin: ["http://localhost:5173", "http://localhost:5174"]
   }
 })
 
@@ -263,6 +262,10 @@ io.on("connection", (socket) => {
 
   socket.on("new message", (newMessageReceived) => {
     socket.broadcast.emit("message received", newMessageReceived);
+  })
+
+  socket.on("new notification", (newNotificationReceived) => {
+    socket.broadcast.emit("notification received", newNotificationReceived);
   })
 
   socket.on("new chat created", (newChatReceived) => {
