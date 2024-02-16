@@ -73,6 +73,35 @@ app.post("/admin/login", async (req, res) => {
   }
 })
 
+app.post("/user/reset/password", async (req, res) => {
+  console.log("reset password api runs")
+  try {
+    const { username, oldPassword, newPassword } = req.body;
+    if (!username) throw new Error("Username cannot be empty");
+    if (!oldPassword) throw new Error("old password cannot be empty");
+    if (!newPassword) throw new Error("new password cannot be empty");
+
+    const user = await Admin.findOne({ username });
+    if (!user) throw new Error("Incorrect username");
+    const passwordMatches = await Admin.findOne({ password: oldPassword });
+    if (!passwordMatches) throw new Error("Incorrect password");
+    if (user) {
+      await Admin.updateOne({ _id: user._id }, { password: newPassword })
+    }
+    const response = {
+      status: 1,
+      message: "Password reset Successfully",
+    };
+    res.json(response);
+  } catch (err) {
+    console.log(err)
+    res.send({
+      status: 0,
+      message: err.message,
+    });
+  }
+})
+
 app.post("/products/add", async (req, res) => {
   const { productType, brandName, aboutProductShort, mrp, img } = req.body;
   try {
@@ -210,12 +239,30 @@ app.post("/api/message", async (req, res) => {
     await Chat.findByIdAndUpdate(req.body.chatId, {
       latestMessage: message
     })
-    res.json(message)
+    await
+      res.json(message)
   } catch (error) {
     res.status(400);
     throw new Error(error.message);
   }
 })
+
+
+//add notification
+
+app.post("/api/notification", async (req, res) => {
+  const { receiverId, messageId } = req.body;
+  try {
+    const user = await Admin.findById(receiverId)
+    await user.updateOne({ $push: { notification: messageId } })
+    res.status(200).send(user);
+
+  } catch (err) {
+    res.status(400);
+    throw new Error(err.message);
+  }
+})
+
 
 //fetch messages
 app.get("/api/message/:chatId", async (req, res) => {
@@ -229,6 +276,41 @@ app.get("/api/message/:chatId", async (req, res) => {
     throw new Error(error.message);
   }
 })
+
+//fetch notification
+app.get("/api/notification/:userId", async (req, res) => {
+  try {
+    var messages = await Admin.find({ _id: req.params.userId }).populate({
+      path: "notification",
+      populate: { path: "sender" }
+    }).populate({
+      path: "notification",
+      populate: { path: "chat" }
+    })
+
+
+    res.json(messages)
+  } catch (error) {
+    res.status(400);
+    throw new Error(error.message);
+  }
+})
+
+//delete notification
+app.put("/api/notification/delete/:msgid/:userid", async (req, res) => {
+  try {
+    const user = await Admin.findById(req.params.userid);
+    if (user.notification.includes(req.params.msgid)) {
+      await user.updateOne({ $pull: { notification: req.params.msgid } })
+      res.status(200).json("notification has been deleted")
+    } else {
+      res.status(403).json("already deleted")
+    }
+  } catch (err) {
+    res.status(500).json(err)
+  }
+})
+
 
 const server = app.listen(port, () => {
   console.log(`app is listening to ${port}`);
@@ -261,10 +343,12 @@ io.on("connection", (socket) => {
 
 
   socket.on("new message", (newMessageReceived) => {
+    console.log("new msg")
     socket.broadcast.emit("message received", newMessageReceived);
   })
 
   socket.on("new notification", (newNotificationReceived) => {
+    console.log("new noti")
     socket.broadcast.emit("notification received", newNotificationReceived);
   })
 
@@ -272,8 +356,12 @@ io.on("connection", (socket) => {
     console.log(newChatReceived)
     socket.broadcast.emit("new chat received", newChatReceived);
   })
+  socket.on("disconnect", () => {
+    console.log("user disconnected", socket.id);
+  });
   socket.off("setup", () => {
     console.log("USER DISCONNECTED");
     socket.leave(userData._id);
   });
+
 })

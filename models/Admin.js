@@ -12,6 +12,11 @@ const adminSchema = new mongoose.Schema({
   userType: {
     type: String,
     default: "Admin"
+  },
+  notification: {
+    type: Array,
+    default: [],
+    ref: "Message"
   }
 }, { timestamps: true });
 
